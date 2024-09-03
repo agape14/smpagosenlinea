@@ -10,6 +10,8 @@ use Exception;
 use Hash;
 use Illuminate\Http\Request;
 use Str;
+use Session;
+use Illuminate\Support\Facades\Http;
 
 class ProfileController extends Controller
 {
@@ -54,8 +56,8 @@ class ProfileController extends Controller
         if ($user->id != Auth::user()->id) {
             abort(403);
         }
-
-        return view('profile.show', compact('user'));
+        $monthlyData = [];
+        return view('profile.show', ['user'=>$user, 'monthlyData' => array_values($monthlyData)]);
     }
 
     /**
@@ -70,7 +72,8 @@ class ProfileController extends Controller
             abort(403);
         }
 
-        return view('profile.edit', compact('user'));
+        $monthlyData = [];
+        return view('profile.edit', ['user'=>$user, 'monthlyData' => array_values($monthlyData)]);
     }
 
     /**
@@ -107,7 +110,7 @@ class ProfileController extends Controller
         return redirect()->route('profile.show', $user)->withSuccess('Profile updated');
     }
 
-    public function updatePassword(UpdatePasswordRequest $request, User $user)
+    public function updatePassword2(UpdatePasswordRequest $request, User $user)
     {
         if (!Hash::check($request->old_password, $user->password)) {
             return back()->withErrors(['old_password' => 'Old password did not match']);
@@ -116,6 +119,37 @@ class ProfileController extends Controller
         $user->update($request->validated());
 
         return redirect()->route('profile.show', $user)->withSuccess('Password Updated');
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $this->validate($request,[
+            'password' => 'required|string',
+            'password_confirmation' => 'required|string',
+        ]);
+
+        if(strcmp($request->password,$request->password_confirmation)!=0){
+            return back()->withErrors(['password' => 'Las claves ingresadas deben ser iguales']);
+        }
+
+        if (Session::has('token')) {
+            $param = [
+                'codcontribuyente' => Auth::user()->code,
+                'txtpassword' => $request->password,
+            ];
+
+            $response = Http::withToken(Session::get('token'))->post(config('constants.PU_CAMBIARPASSWORD'),$param);
+            if ($response->successful()){
+                $data = $response->json();
+                $message = $data['mensaje'];
+                return redirect()->route('profile.edit', Auth::user())->withSuccess('Se ha realizado el registro satisfactoriamente');
+            }else {
+                return back()->withErrors(['password' => 'Los registros no se validaron correctamente.']);
+            }
+        }else {
+            Session::forget('token');
+            return redirect('auth/login')->with('alert-danger', 'Debe crear un usuario para ingresar una clave.');
+        }
     }
 
     /**

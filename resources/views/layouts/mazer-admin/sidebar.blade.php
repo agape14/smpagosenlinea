@@ -2,7 +2,7 @@
     <div class="sidebar-header position-relative">
         <div class="d-flex justify-content-between align-items-center">
             <div class="logo">
-                <a href=""><img src="{{ asset('mazer2.0/assets/images/logo/logo.svg') }}" alt="Logo"
+                <a href=""><img src="{{ asset('logo.png') }}" style="width: 110px; height: 50px;" alt="Logo"
                         srcset=""></a>
             </div>
             <div class="theme-toggle d-flex gap-2  align-items-center mt-2">
@@ -43,71 +43,40 @@
         <ul class="menu">
             <li class="sidebar-title">Menu</li>
 
-            <li class="sidebar-item @if (Route::currentRouteName() == 'home') active @endif">
-                <a href="{{ route('home') }}" class='sidebar-link'>
-                    <i class="fa fa-home"></i>
-                    <span>Home</span>
-                </a>
-            </li>
             <li class="sidebar-item @if (Route::currentRouteName() == 'admin.dashboard.index') active @endif">
                 <a href="{{ route('admin.dashboard.index') }}" class='sidebar-link'>
-                    <i class="fa fa-tachometer-alt"></i>
-                    <span>Dashboard</span>
+                    <i class="bi bi-grid-fill"></i>
+                    <span>Inicio</span>
                 </a>
             </li>
 
-            <li class="sidebar-item has-sub @if (in_array(Route::currentRouteName(), ['admin.roles.index', 'admin.permissions.index', 'admin.users.index'])) active @endif">
-                <a href="#" class='sidebar-link'>
-                    <i class="fa fa-user-check"></i>
-                    <span>Administration</span>
+            <li class="sidebar-item @if (Route::currentRouteName() == 'admin.deuda.index') active @endif">
+                <a href="{{ route('admin.deuda.index') }}" class='sidebar-link'>
+                    <i class="fas fa-credit-card"></i>
+                    <span>Deuda</span>
                 </a>
-                <ul class="submenu ">
-                    <li class="submenu-item ">
-                        <a href="{{ route('admin.roles.index') }}">Role List</a>
-                    </li>
-                    <li class="submenu-item ">
-                        <a href="{{ route('admin.permissions.index') }}">Permission List</a>
-                    </li>
-                    <li class="submenu-item ">
-                        <a href="{{ route('admin.users.index') }}">User List</a>
-                    </li>
-                </ul>
             </li>
 
-            <li class="sidebar-title">Profile</li>
+            <li class="sidebar-item @if (Route::currentRouteName() == 'admin.historial.constancias') active @endif">
+                <a href="{{ route('admin.historial.constancias') }}" class='sidebar-link'>
+                    <i class="fas fa-file-alt"></i>
+                    <span>Constancia de pago</span>
+                </a>
+            </li>
+
+            <li class="sidebar-title">-</li>
 
             <li class="sidebar-item @if (Route::currentRouteName() == 'profile.edit') active @endif">
                 <a href="{{ route('profile.edit', auth()->user()->id) }}" class='sidebar-link'>
-                    <i class="bi bi-person"></i>
-                    <span>Profile</span>
+                    <i class="fas fa-user"></i>
+                    <span>Mi Perfil</span>
                 </a>
             </li>
 
             <li class="sidebar-item ">
                 <a href="{{ route('profile.show', auth()->user()->id) }}" class='sidebar-link'>
-                    <i class="bi bi-door-open-fill text-danger"></i>
-                    <span>Log out</span>
-                </a>
-            </li>
-
-            <li class="sidebar-item ">
-                <a href="" class='sidebar-link'>
-                    <i class="bi bi-question-circle"></i>
-                    <span>Need help ?</span>
-                </a>
-            </li>
-
-            <li class="sidebar-item ">
-                <a href="{{ route('mazer') }}" class='sidebar-link'>
-                    <i class="bi bi-files"></i>
-                    <span>Blank page(Mazer 2.0 theme)</span>
-                </a>
-            </li>
-
-            <li class="sidebar-item ">
-                <a href="{{ route('webkit') }}" class='sidebar-link'>
-                    <i class="bi bi-files"></i>
-                    <span>Blank page(webkit theme) ?</span>
+                    <i class="fas fa-sign-out-alt text-danger"></i>
+                    <span>Cerrar Sesión</span>
                 </a>
             </li>
 

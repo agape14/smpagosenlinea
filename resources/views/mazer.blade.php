@@ -1,6 +1,5 @@
 @extends('layouts.mazer-admin')
 
-
 @section('content')
     <section class="row">
         <div class="col-12 col-lg-9">

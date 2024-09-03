@@ -8,15 +8,15 @@
                 <form action="{{ route('profile.update', Auth::user()) }}" method="POST" enctype="multipart/form-data">
                     <div class="card-header d-flex justify-content-between">
                         <div class="header-title">
-                            <h4 class="card-title">Edit Profile</h4>
+                            <h4 class="card-title">Mi perfil</h4>
                         </div>
-                        <div class="header-title"><button type="submit" class="btn btn-success">save</button></div>
+                        <!-- <div class="header-title"><button type="submit" class="btn btn-success">save</button></div> -->
                     </div>
                     <div class="card-body">
                         @csrf
                         @method('PUT')
                         <div class="form-group">
-                            <div class="crm-profile-img-edit position-relative">
+                            <!-- <div class="crm-profile-img-edit position-relative">
                                 <img id="output" class="img-fluid rounded avatar-100"
                                     src="{{ asset('storage/' . $user->photo) }}" alt="">
                                 <div class="crm-p-image ">
@@ -36,8 +36,8 @@
                                         reader.readAsDataURL(event.target.files[0]);
                                     };
                                 </script>
-                            </div>
-                            <div class="img-extension mt-3">
+                            </div> -->
+                            <!-- <div class="img-extension mt-3">
                                 <div class="d-inline-block align-items-center">
                                     <span>Only</span>
                                     <a href="javascript:void();">.jpg</a>
@@ -45,12 +45,12 @@
                                     <a href="javascript:void();">.jpeg</a>
                                     <span>allowed</span>
                                 </div>
-                            </div>
+                            </div> -->
                         </div>
 
                         <div class="form-group">
-                            <label for="furl">Name:</label>
-                            <input type="text" name="name" class="form-control" id="furl" placeholder="Name"
+                            <label for="furl">Contribuyente:</label>
+                            <input type="text" name="name" class="form-control" id="furl" placeholder="Nombre"
                                 value="{{ $user->name }}">
                             @error('name')
                                 <span class="text-danger">{{ $message }}</span>
@@ -76,35 +76,41 @@
                 <form action="{{ route('profile.updatePassword', Auth::user()) }}" method="POST">
                     <div class="card-header d-flex justify-content-between">
                         <div class="header-title">
-                            <h4 class="card-title">Update Password</h4>
+                            <h4 class="card-title">Cambiar contraseña</h4>
                         </div>
-                        <div class="header-title"><button type="submit" class="btn btn-success">save</button></div>
+                        <div class="header-title"><button type="submit" class="btn btn-success">Guardar</button></div>
                     </div>
                     <div class="card-body">
                         @csrf
                         @method('PUT')
 
                         <div class="form-group">
-                            <label for="furl">Old Password:</label>
+                            <label for="furl">Contraseña actual:</label>
                             <input type="password" name="old_password" class="form-control" id="furl"
-                                placeholder="Old password">
+                                placeholder="Contraseña actual">
                             @error('old_password')
                                 <span class="text-danger">{{ $message }}</span>
                             @enderror
                         </div>
                         <div class="form-group">
-                            <label for="turl">New Password:</label>
+                            <label for="turl">Nueva contraseña:</label>
                             <input type="password" name="password" class="form-control" id="turl"
-                                placeholder="New password">
+                                placeholder="Nueva contraseña">
                             @error('password')
                                 <span class="text-danger">{{ $message }}</span>
                             @enderror
                         </div>
 
+                        @if(session('success'))
+                            <div class="alert alert-success">
+                                {{ session('success') }}
+                            </div>
+                        @endif
+
                         <div class="form-group">
-                            <label for="turl">Confirm Password:</label>
+                            <label for="turl">Confirmar nueva contraseña:</label>
                             <input type="password" name="password_confirmation" class="form-control" id="turl"
-                                placeholder="Confirm password">
+                                placeholder="Confirmar contraseña">
                         </div>
 
                     </div>

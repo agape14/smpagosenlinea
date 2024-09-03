@@ -1,3 +1,5 @@
+console.log(window.monthlyData);
+
 var optionsProfileVisit = {
   annotations: {
     position: "back",
@@ -15,26 +17,38 @@ var optionsProfileVisit = {
   plotOptions: {},
   series: [
     {
-      name: "sales",
-      data: [9, 20, 30, 20, 10, 20, 30, 20, 10, 20, 30, 20],
+      name: "Importe",
+      data: window.monthlyData,
     },
   ],
   colors: "#435ebe",
   xaxis: {
     categories: [
-      "Jan",
+      "Ene",
       "Feb",
       "Mar",
-      "Apr",
+      "Abr",
       "May",
       "Jun",
       "Jul",
-      "Aug",
+      "Ago",
       "Sep",
       "Oct",
       "Nov",
-      "Dec",
+      "Dic",
     ],
+  },
+  yaxis: {
+    labels: {
+      // Aquí es donde se formatean los valores en la escala Y
+      formatter: function (value) {
+        return new Intl.NumberFormat('es-ES', {
+          style: 'decimal',
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        }).format(value);
+      },
+    },
   },
 }
 let optionsVisitorsProfile = {
@@ -151,8 +165,8 @@ var chartIndonesia = new ApexCharts(
   optionsIndonesia
 )
 
-chartIndonesia.render()
-chartAmerica.render()
-chartEurope.render()
+//chartIndonesia.render()
+//chartAmerica.render()
+//chartEurope.render()
 chartProfileVisit.render()
-chartVisitorsProfile.render()
+//chartVisitorsProfile.render()

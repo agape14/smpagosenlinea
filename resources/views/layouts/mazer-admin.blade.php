@@ -37,18 +37,20 @@
             </div>
 
             <footer>
-                <div class="footer clearfix mb-0 text-muted">
-                    <div class="float-start">
-                        <p>Laravel Stater Kit by <a href="https://jabsainfotech.com">Jabsa Infotech(InnoWaysIT)</a></p>
-                    </div>
+                <div class="footer clearfix mb-0 text-muted">                    
                     <div class="float-end">
-                        <p>Crafted with <span class="text-danger"><i class="bi bi-heart"></i></span> by <a
-                                href="https://saugi.me">Saugi</a></p>
+                        <p>Desarrollado con <span class="text-danger"><i class="bi bi-heart"></i></span> por la <a
+                                href="#">Municipalidad de San Miguel</a></p>
                     </div>
                 </div>
             </footer>
         </div>
     </div>
+    <script>        
+        //if (typeof window.monthlyData !== 'undefined' && Array.isArray(window.monthlyData)) {
+            window.monthlyData = @json($monthlyData);
+        //} 
+    </script>
     <script src="{{ asset('mazer2.0/assets/js/bootstrap.js') }}"></script>
     <script src="{{ asset('mazer2.0/assets/js/app.js') }}"></script>
 
