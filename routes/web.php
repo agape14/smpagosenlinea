@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeudaController;
+use App\Http\Controllers\BeneficioController;
 use App\Http\Controllers\ShoppingCartController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProfileController;
@@ -40,10 +41,14 @@ Route::group([
     ], function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
         Route::get('/deuda', [DeudaController::class, 'index'])->name('deuda.index');
+        Route::get('/beneficio', [BeneficioController::class, 'index'])->name('beneficio.index');
 
         // Rutas del ShoppingCart
         Route::post('/confirm', [ShoppingCartController::class,'generar_liquidacion'])->name('confirm.generar_liquidacion');
         Route::post('/visa',[DeudaController::class,'post_visa'])->name('visa.post_visa');
+
+        // Rutas de Beneficio
+        Route::post('/confirmBeneficio', [BeneficioController::class, 'generar_liquidacion_beneficio'])->name('confirmBeneficio.generar_liquidacion_beneficio');
         
         //Route::get('/confirm', [ShoppingCartController::class,'rediccion'])->name('confirm.rediccion');
         //Route::post('/deleteitem', [ShoppingCartController::class,'deleteitem'])->name('confirm.deleteitem');        

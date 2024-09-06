@@ -41,13 +41,16 @@ class Handler extends ExceptionHandler
 
     public function render($request, Throwable $exception)
     {
-        // Render custom 403 page
         if ($exception instanceof \Illuminate\Auth\Access\AuthorizationException) {
             return response()->view('errors.403', [], 403);
         }
         
         if ($exception instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException) {
             return response()->view('errors.404', [], 404);
+        }
+
+        if ($exception instanceof HttpException && $exception->getStatusCode() === 419) {
+            return response()->view('errors.419', [], 419);
         }
 
         return parent::render($request, $exception);

@@ -57,6 +57,13 @@
                 </a>
             </li>
 
+            <li class="sidebar-item @if (Route::currentRouteName() == 'admin.beneficio.index') active @endif">
+                <a href="{{ route('admin.beneficio.index') }}" class='sidebar-link'>
+                    <i class="fas fa-money-bill-wave"></i>
+                    <span>Deuda con Beneficio</span>
+                </a>
+            </li>
+
             <li class="sidebar-item @if (Route::currentRouteName() == 'admin.historial.constancias') active @endif">
                 <a href="{{ route('admin.historial.constancias') }}" class='sidebar-link'>
                     <i class="fas fa-file-alt"></i>

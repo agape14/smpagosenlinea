@@ -36,6 +36,7 @@ class DeudaController extends Controller
 	    $contenedor = [];
 	    $WSPredial = [];
 	    $WSArbitrios = [];
+	    $WSCostas = [];
 
 	    if ($response->successful()) {
 	        $data = $response->json();
@@ -111,7 +112,7 @@ class DeudaController extends Controller
 	                    case '22': // COSTAS
 	                        $contenedor[$aniocont]['detallado']['COSTAS'][$counters['COSTAS']] = [
 	                            'CODITRIBUTO' => $row['CODCONPAGO'],
-	                            'DESCTRIBUTO' => 'ARB. MUNICIPAL',
+	                            'DESCTRIBUTO' => 'COSTAS',
 	                            'PERIODO' => $row['PERIODODEUDA'],
 	                            'FECHA_VENCIMIENTO' => $row['FECHAVENCIMIENTO'],
 	                            'INSOLUTO' => number_format($row['INSOLUTO'], 2),
@@ -152,6 +153,13 @@ class DeudaController extends Controller
 	                        $WSArbitrios[] = $arbitrios;
 	                    }
 	                }
+
+	                if (isset($data->detallado->COSTAS)) {
+	                    foreach ($data->detallado->COSTAS as $costas) {
+	                        $costas->anio = $anio;
+	                        $WSCostas[] = $costas;
+	                    }
+	                }
 	            }
 	        }
 	    }
@@ -159,12 +167,13 @@ class DeudaController extends Controller
 	    // Convierte las respuestas JSON a colecciones
 		$WSPredial = collect($WSPredial);
 		$WSArbitrios = collect($WSArbitrios);
+		$WSCostas = collect($WSCostas);
 
 		// Combina ambas colecciones
-		$WSCombined = $WSPredial->merge($WSArbitrios);
+		$WSCombined = $WSPredial->merge($WSArbitrios)->merge($WSCostas);
 
 		// Define el orden de los tributos
-		$order = ['Impuesto Predial', 'Arbitrios Municipales'];
+		$order = ['Impuesto Predial', 'Arbitrios Municipales', 'Costas'];
 
 		// Ordena primero por el año de deuda en orden descendente y luego por el tipo de tributo
 		$WSCombined = $WSCombined->sortBy([
@@ -178,7 +187,7 @@ class DeudaController extends Controller
 		$WSCombined = $WSCombined->values()->all();
 
 	    $monthlyData = '';
-	    return view('deuda.index', compact('users', 'WSPredial', 'WSArbitrios', 'WSCombined', 'monthlyData'));
+	    return view('deuda.index', compact('users', 'WSCombined', 'monthlyData'));
 	}
 
 	public function indexx()

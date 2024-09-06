@@ -1,5 +1,3 @@
-console.log(window.monthlyData);
-
 var optionsProfileVisit = {
   annotations: {
     position: "back",

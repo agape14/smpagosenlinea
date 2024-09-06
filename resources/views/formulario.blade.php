@@ -68,6 +68,21 @@
                     </div>
                 </div>
 
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <div class="d-flex align-items-center">
+                            <h6 class="mb-0 ms-3">Políticas de Privacidad</h6>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-check">
+                            <label class="form-check-label" for="returnPolicyPrivacity">
+                                Descargar<a href="{{ asset('pdf/Politicasdeprivacidad.pdf') }}" download >políticas de privacidad</a>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Modal for Terms and Conditions -->
                 <div class="modal fade text-left" id="terminos-condiciones" tabindex="-1" role="dialog"
                     aria-labelledby="myModalLabel1" aria-hidden="true">

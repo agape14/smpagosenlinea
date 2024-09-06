@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
@@ -17,12 +17,15 @@
         integrity="sha384-O8whS3fhG2OnA5Kas0Y9l3cfpmYjapjI0E4theH4iuMD+pLhbf6JI0jIMfYcK3yZ" crossorigin="anonymous">
 </head>
 
-<body>
+<body>    
     <div id="app">
         <div id="sidebar" class="active">
             @include('layouts.mazer-admin.sidebar')
         </div>
         <div id="main">
+            <!-- Ícono de carga global -->
+            @include('components.loading')
+
             <header class="mb-3">
                 <a href="#" class="burger-btn d-block d-xl-none">
                     <i class="bi bi-justify fs-3"></i>
@@ -32,6 +35,7 @@
             <div class="page-heading">
                 <h3>@yield('heading')</h3>
             </div>
+
             <div class="page-content">
                 @yield('content')
             </div>
@@ -57,6 +61,31 @@
     <!-- Need: Apexcharts -->
     <script src="{{ asset('mazer2.0/assets/extensions/apexcharts/apexcharts.min.js') }}"></script>
     <script src="{{ asset('mazer2.0/assets/js/pages/dashboard.js') }}"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let loading = document.getElementById('loading');
+
+            // Mostrar el ícono de carga cuando se empieza a cargar data asíncrona
+            loading.style.display = 'flex';
+
+            // Suponiendo que estás usando fetch:
+            Promise.all([
+                //fetch('/api/data1').then(response => response.json()),
+                //fetch('/api/data2').then(response => response.json())
+            ]).then(results => {
+                // Procesar los datos aquí...
+
+                // Una vez que los datos se hayan cargado completamente:
+                loading.style.display = 'none';
+            }).catch(error => {
+                console.error('Error al cargar los datos:', error);
+                // Manejar errores si es necesario...
+                loading.style.display = 'none';
+            });
+        });
+
+    </script>
 
 </body>
 

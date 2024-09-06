@@ -76,15 +76,15 @@ class LoginController extends Controller
                 if($response->successful()){
                     $data = $response->json();
 
-                    if ($data != "[]" ) {
+                    if (!empty($data) && is_array($data)) {
                         $inserted = User::create([
                             'code'    => $data[0]['CODCONTRIBUYENTE'],
                             'name'    => $data[0]['TXTCONTRIBUYENTE'],
-                            'address' => $data[0]['TXTDOMICILIO'],
+                            'address' => $data[0]['TXTDOMICILIO'] ? $data[0]['TXTDOMICILIO'] : '',
                             'days'    => 1,
-                            'email'   => $data[0]['TXTEMAIL'] ? $data[0]['TXTEMAIL']: '',
-                            'typedoc' => $data[0]['TXTTIPODOCIDENTIDAD'],
-                            'numdoc'  => $data[0]['TXTDOCIDENTIDAD']
+                            'email'   => $data[0]['TXTEMAIL'] ? $data[0]['TXTEMAIL'] : '',
+                            'typedoc' => $data[0]['TXTTIPODOCIDENTIDAD'] ? $data[0]['TXTTIPODOCIDENTIDAD']: '',
+                            'numdoc'  => $data[0]['TXTDOCIDENTIDAD'] ? $data[0]['TXTDOCIDENTIDAD']: ''
                         ]);
 
                         if ($inserted) {
