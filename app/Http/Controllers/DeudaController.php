@@ -415,7 +415,7 @@ class DeudaController extends Controller
 
                     	//dd($data3);
                     	Session::put('alert-danger', [
-					        'error_code' => $data3->status,
+					        'error_code' => 'Error ',
 					        'description' => 'El pago no se ha completado, por favor verificar el error'
 					    ]);
                     }

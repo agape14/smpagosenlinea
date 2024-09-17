@@ -11,7 +11,7 @@
     @endif
 
     <section class="section">
-        <form method="POST" action="{{ route('admin.confirm.generar_liquidacion') }}" onsubmit="setarray()">
+        <form method="POST" action="{{ route('admin.confirm.generar_liquidacion', ['from' => 'deuda']) }}" onsubmit="setarray()">
             {{ csrf_field() }}
 
             <div class="card-header mt-2 mb-2 d-flex justify-content-between align-items-center">
@@ -21,7 +21,7 @@
                     </button>
                 </div>
                 <div class="buttons">
-                    <button id="refresh-button" class="btn btn-secondary ml-2">
+                    <button id="refresh-button" class="btn btn-secondary ml-2">                        
                         <i class="fas fa-sync"></i> Actualizar
                     </button>
                 </div>
@@ -30,28 +30,28 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <!-- Sección izquierda: Monto total a pagar -->
-                    <div>
-                        <h6 class="text-muted font-semibold">Monto total a pagar</h6>
+                    <div id="divDeuda" class="ms-3" style="display: none;">
+                        <h6 class="text-muted font-semibold">Deuda total</h6>
                         <h6 id="pago" class="font-extrabold mb-0">S/. </h6>
                     </div>
 
                     <!-- Sección del medio: Costa -->
-                    <div id="div_costas" class="ms-3" style="display: none;">
-                        <h6 class="text-muted font-semibold">Costa (10%)</h6>
-                        <h6 id="id_costas" class="font-extrabold mb-0">S/. 126.85</h6>
+                    <div id="divCostas" class="ms-3" style="display: none;">
+                        <h6 class="text-muted font-semibold">Gastos (10%)</h6>
+                        <h6 id="valorCostas" class="font-extrabold mb-0">S/. </h6>
                     </div>
 
                     <!-- Sección derecha: Total a pagar -->
-                    <div id="div_pago_total" class="ms-3 text-end" style="display: none;">
+                    <div id="divTotalPagar" class="ms-3 text-end" >
                         <h6 class="text-muted font-semibold">Total a pagar</h6>
-                        <h6 id="id_pago_total" class="font-extrabold mb-0">S/. 1395.39</h6>
+                        <h6 id="valorTotalPagar" class="font-extrabold mb-0">S/. </h6>
                     </div>
                 </div>
                 <div class="card-body">
-                    <table class="table table-hover mb-0 " id="datadatable">
+                    <table class="table table-hover mb-0 display" id="datadatable">
                         <thead>
                             <tr>
-                            	<th class="text-center"><input id="imp-select-all" type="checkbox"></th>
+                            	<th class="text-center"><input id="select-all" type="checkbox"></th>
                                 <th>Año Trim.</th>
                                 <th>Tributo</th>
                                 <th class="text-right">Insoluto</th>
@@ -68,7 +68,7 @@
                             @if (count($WSCombined) > 0)
                                 @foreach ($WSCombined as $item)
                                     <tr>
-                                        <td class="text-center"><input type="checkbox" data-situacion="{{ $item->SITUACION }}" data-cbx="{{ str_replace(',', '', $item->TOTAL) }}" class='checkboxclick' name="payment[]" value="{{ $item->ID }}" ></td>
+                                        <td class="text-center"><input type="checkbox" data-situacion="{{ $item->SITUACION }}" data-cbx="{{ str_replace(',', '', $item->TOTAL) }}" class='checkboxclick' name="payment[]" data-id="{{ $item->ID }}" value="{{ $item->ID }}" ></td>
                                         <td>{{ $item->ANNODEUDA }} - {{ $item->PERIODO }}</td>
                                         <td>{{ $item->DESCTRIBUTO }}</td>
                                         <td class="text-right">{{ $item->INSOLUTO }}</td>
@@ -103,6 +103,7 @@
     <script type="text/javascript">
         document.addEventListener('DOMContentLoaded', function() {
             var message = "{{ session('alert-liquidacion') }}";
+            console.log(message)
             if (message) {
                 Toastify({
                     text: message,
@@ -110,248 +111,173 @@
                     close: true,
                     gravity: "top",
                     position: "center",
-                    backgroundColor: "#4fbe87",
+                    backgroundColor: "#157347",
                 }).showToast()
             }
         })
     </script>
 
-	<script type="text/javascript">
-		var tabCoactiv, security;
-        var cticn = 0;
 
-        var arrayvalues = [];
-        var total = 0;
-
-        let montoMinimo = 10.0;
-        let montoMaximo = 650.0;
-        //SITUACION
-
-		$(function () {
-
-			var dataTable = $('#datadatable').DataTable({
-                "bLengthChange": false,
-                "responsive": true,
-                "info": false,
-                "paging": false,
-                "ordering": false,
-                "language": {
-                    "emptyTable": "No hay datos disponibles en la tabla"
-                }
-                /*"columnDefs": [
-                    {
-                        "searchable": true,
-                        "targets": [8],
-                        "visible": false
-                    }
-                ],*/
-            });
-
-            $('.dataTables_filter').hide()
-
-            $(".checkboxclick:checked").each(function(){});
-
-            $('#imp-select-all').on('click', function() {
-                var rows = dataTable.rows({ 'search': 'applied' }).nodes();
-                var isChecked = this.checked;
-
-                // Reiniciar valores
-                total = 0;
-                arrayvalues = [];
-
-                // Seleccionar o deseleccionar todos los checkboxes
-                $('input[type="checkbox"]', rows).each(function() {
-                    var $checkbox = $(this);
-                    var val = $checkbox.val();
-                    var objeto = $checkbox.data('cbx');
-
-                    if ($checkbox.closest('tr').find('input[type="checkbox"]').length > 0) { // Asegurarse de que la fila tenga un checkbox
-                        $checkbox.prop('checked', isChecked);
-
-                        if (!isNaN(parseFloat(objeto))) {
-                            if (isChecked) {
-                                if (arrayvalues.indexOf(val) === -1) {
-                                    total += parseFloat(objeto);
-                                    arrayvalues.push(val);
-                                }
-                            } else {
-                                if (arrayvalues.indexOf(val) !== -1) {
-                                    total -= parseFloat(objeto);
-                                    arrayvalues.splice(arrayvalues.indexOf(val), 1);
-                                }
-                            }
-                        } else {
-                            console.log("Valor no numérico detectado:", objeto);
-                        }
+    <script type="text/javascript">
+        $(function () {
+            var dataTable = $('#datadatable').DataTable({
+                    "scrollY": 500, // Altura del contenedor con scroll
+                    "scrollCollapse": true,
+                    "bLengthChange": false,
+                    "responsive": true,
+                    "info": false,
+                    "paging": false,
+                    "ordering": false,
+                    "language": {
+                        "emptyTable": "No hay datos disponibles en la tabla"
                     }
                 });
 
-                // Mostrar el total actualizado
-                total = Math.round(total * 1000) / 1000;
-                $("#pago").text(" S/. " + total);
-            });
+            $('.dataTables_filter').hide();
 
-            // Manejo de checkboxes individuales
-            $('#datadatable').on('change', 'input[type="checkbox"]', function() {
-                var $checkbox = $(this);
-                var val = $checkbox.val();
-                var objeto = $checkbox.data('cbx');
-
-                if ($checkbox.closest('tr').find('input[type="checkbox"]').length > 0) { // Asegurarse de que la fila tenga un checkbox
-                    if (!isNaN(parseFloat(objeto))) {
-                        if ($checkbox.is(':checked')) {
-                            if (arrayvalues.indexOf(val) === -1) {
-                                total += parseFloat(objeto);
-                                arrayvalues.push(val);
-                            }
-                        } else {
-                            if (arrayvalues.indexOf(val) !== -1) {
-                                total -= parseFloat(objeto);
-                                arrayvalues.splice(arrayvalues.indexOf(val), 1);
-                            }
-                        }
-                    } else {
-                        console.log("Valor no numérico detectado:", objeto);
-                    }
-
-                    // Actualizar el total
-                    total = Math.round(total * 1000) / 1000;
-                    $("#pago").text(" S/. " + total);
-                }
-            });
-
-		})
-	</script>
+            $(".checkboxclick:checked").each(function(){});
+        })
+    </script>
 
     <script type="text/javascript">
-        var total = 0.0;
-        var arrayvalues = [];
-
-        var totalCoactivo = 0.0;
-
+        var tabCoactiv, security;
         let totalCostas = 0;
         let totalPagar = 0;
-        const topeCostas = 650; // Máximo de 650 soles
+        let deudaTotal = 0;
+        const topeCostas = 650;
+        let registrosSeleccionados = [];
+        let situacionCoactivo = new Set();
+        let idsSeleccionados = new Set(); // Para rastrear IDs y evitar duplicados
 
-        // Función para actualizar las vistas
-        function actualizarVista() {
-            $('#id_costas').text(totalCostas.toFixed(2));
-            $('#id_pago_total').text(totalPagar.toFixed(2));
-
-            // Mostrar u ocultar la sección de costas solo si totalCostas es mayor a 0
-            if (totalCostas > 0) {
-                $('#div_costas').show();
-                $('#div_pago_total').show();
-            } else {
-                $('#div_costas').hide();
-                $('#div_pago_total').hide();
-            }
+        // Método para actualizar el campo hidden con el array de registros seleccionados
+        function setarray() {
+            console.log("Registros seleccionados:", registrosSeleccionados);
+            document.getElementById("arrayv").value = JSON.stringify(registrosSeleccionados);
         }
 
-        $(".checkboxclick").change( function () {
-            var total = parseFloat($(this).data('cbx'));
-            var situacion = parseFloat($(this).data('situacion'));
-            console.log(situacion)
-            if (situacion === 6) {
-                if ($(this).is(':checked')) {
-                    // Calcular el 10% del total
-                    let costas = total * 0.10;
-
-                    // Aplicar el mínimo de 10 soles si el 10% es menor a 10
-                    if (costas < 10) {
-                        costas = 10;
-                    }
-
-                    // Solo sumar costas si el total acumulado no ha alcanzado el tope de 650
-                    if (totalCostas < topeCostas) {
-                        totalCostas += costas;
-
-                        // Verificar si el total acumulado de costas supera el tope
-                        if (totalCostas > topeCostas) {
-                            totalCostas = topeCostas; // Limitar el total de costas al tope de 650
-                        }
-
-                        totalPagar += total + costas;
-                    } else {
-                        totalPagar += total; // Si ya alcanzó el tope, solo sumar el total de la deuda
-                    }
-                } else {
-                    // Si se deselecciona, restar los valores calculados
-                    let costas = total * 0.10;
-
-                    if (costas < 10) {
-                        costas = 10;
-                    }
-
-                    // Si el total de costas ya es 650, no restar más
-                    if (totalCostas <= topeCostas) {
-                        totalCostas -= costas;
-
-                        // Evitar que las costas sean negativas
-                        if (totalCostas < 0) {
-                            totalCostas = 0;
-                        }
-
-                        totalPagar -= total + costas;
-                    } else {
-                        totalPagar -= total; // Si el total de costas está en el tope, solo restar la deuda
-                    }
-                }
-            }
-
-            // Actualizar la vista con los valores recalculados
-            actualizarVista();
-
-            /*if($(this).is(':checked')) {
-                total+= parseFloat(objeto);
-                arrayvalues.push($(this).val());
-            }else{
-                total-= parseFloat(objeto);
-                if(arrayvalues.indexOf($(this).val())!=-1){
-                    arrayvalues.splice(arrayvalues.indexOf($(this).val()),1);
-                }
-            }*/
-
-            total = Math.round(total * 1000) / 1000;
-            $("#pago").text(" S/. "+total);
-            var text = "";
-            for(var i=0;i<arrayvalues.length;i++){
-                text+=arrayvalues[i]+",";
-            }
+        // Manejar la selección de todos los checkboxes
+        $('#select-all').on('click', function() {
+            var isChecked = $(this).is(':checked');
+            $('input.checkboxclick').prop('checked', isChecked);
+            calculateTotals(isChecked);
         });
 
-        function mostrarSiSituacion6(registroSeleccionado) {
-            //const checkbox = document.getElementById('situacionCheck');
-            
-            // Verificar si la situación es 6
-            if (registroSeleccionado === 6) {
+        // Manejar la selección/desselección individual de checkboxes
+        $('input.checkboxclick').on('change', function() {
+            calculateTotals(false); // False indica que no es selección general
+        });
 
-                const total = $(this).data('cbx');
-                console.log(total)
-                const costa = total * 0.10
+        function calculateTotals(isSelectAll) {
+            totalCostas = 0;
+            totalPagar = 0;
+            deudaTotal = 0;
+            registrosSeleccionados = [];
+            situacionCoactivo.clear();
+            idsSeleccionados.clear(); // Limpiar el conjunto de IDs seleccionados
+            let showToast = false; // Para controlar si mostramos el mensaje Toastify
 
-                // Actualizar el contenido en HTML
-                document.getElementById('id_costas').textContent = `S/. ${costa.toFixed(2)}`;
-                document.getElementById('id_pago_total').textContent = `S/. ${(total + costa).toFixed(2)}`;
+            $('input.checkboxclick:checked').each(function() {
+                var $checkbox = $(this);
+                var id = $checkbox.data('id');
+                var total = parseFloat($checkbox.data('cbx'));
+                var situacion = parseInt($checkbox.data('situacion'), 10);
 
+                deudaTotal += total;
 
+                let costas = 0;
+                if (situacion === 6) {
+                    costas = total * 0.10;
+                    if (costas < 10) costas = 10;
+                    if (totalCostas + costas > topeCostas) {
+                        costas = topeCostas - totalCostas;
+                    }
+                    totalCostas += costas;
+                    totalPagar += total + costas;
 
-                // Mostrar los elementos si la situación es 6
-                document.getElementById('div_costas').style.display = 'block';
-                document.getElementById('div_pago_total').style.display = 'block';
+                    // Marcar que debemos mostrar el mensaje Toastify si es selección general
+                    if (isSelectAll) {
+                        showToast = true;
+                    } else {
+                        // Si es selección individual, mostrar mensaje para situación 6
+                        Toastify({
+                            text: 'La deuda seleccionada posee Costas',
+                            duration: 3000,
+                            close: true,
+                            gravity: "top",
+                            position: "center",
+                            style: {
+                                background: "#157347"
+                            },
+                        }).showToast();
+                    }
 
-                totalCoactivo = Math.round(totalCoactivo * 1000) / 1000;
+                    situacionCoactivo.add(id); // Añadir id al set de situaciones 6
+                } else {
+                    totalPagar += total;
+                }
 
-            } else {
-                // Ocultar los elementos en caso contrario
-                document.getElementById('div_costas').style.display = 'none';
-                document.getElementById('div_pago_total').style.display = 'none';
+                // Agregar el registro al array de seleccionados para todas las situaciones
+                if (!idsSeleccionados.has(id)) {
+                    registrosSeleccionados.push({
+                        id: id,
+                        situacion: situacion,
+                        valorRegistro: total,
+                        costas: situacion === 6 ? costas : 0
+                    });
+                    idsSeleccionados.add(id); // Añadir el ID al conjunto de IDs seleccionados
+                } else {
+                    // Actualizar el registro existente si ya está en el arreglo
+                    let existingRecord = registrosSeleccionados.find(record => record.id === id);
+                    if (existingRecord) {
+                        existingRecord.valorRegistro = total;
+                        existingRecord.costas = situacion === 6 ? costas : 0;
+                    }
+                }
+            });
+
+            // Mostrar el mensaje Toastify una sola vez si es selección general
+            if (isSelectAll && showToast) {
+                Toastify({
+                    text: 'Algunas deudas seleccionadas poseen Costas',
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "center",
+                    style: {
+                        background: "#157347"
+                    },
+                }).showToast();
             }
-        }
 
-        function setarray(){
-            document.getElementById("arrayv").value = arrayvalues;
+            // Mostrar los resultados
+            deudaTotal = Math.round(deudaTotal * 1000) / 1000;
+            totalCostas = Math.round(totalCostas * 1000) / 1000;
+            totalPagar = Math.round(totalPagar * 1000) / 1000;
+            $('#pago').text("S/. " + deudaTotal);
+            $('#valorCostas').text("S/. " + totalCostas);
+            $('#valorTotalPagar').text("S/. " + totalPagar);
+
+            // Ocultar los divs si no hay costas
+            if (totalCostas === 0) {
+                $('#divCostas').hide();
+                $('#divDeuda').hide();
+            } else {
+                $('#divCostas').show();
+                $('#divDeuda').show();
+            }
+
+            // Actualizar el campo con el array de registros seleccionados
+            setarray();
         }
     </script>
 
+
+
+    <style type="text/css">
+        table.dataTable thead th {
+            position: sticky;
+            top: 0;
+            background: #f0f0f0;
+        }
+    </style>
 @endsection

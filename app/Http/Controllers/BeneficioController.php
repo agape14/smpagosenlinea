@@ -14,225 +14,262 @@ class BeneficioController extends Controller
 {
 	public function index()
 	{
-	    $users = User::where('code', Auth::user()->code)->count();
-	    $code = Auth::user()->code;
-	    $annoi = 1999;
-	    $annof = date('Y');
-	    $tipodeuda = 0;
-	    $anexoi = 0;
-	    $anexof = 99;
-	    $condiciondeuda = 0;
+		$users = User::where('code', Auth::user()->code)->count();
+		$code = Auth::user()->code;
 
-	    $url = config('constants.PS_CTACTEBENEFICIO') . '?CODCONTRIBUYENTE=' . urlencode($code) .
-	                                            '&ANNODEUDAINI=' . $annoi .
-	                                            '&ANNODEUDAFIN=' . $annof .
-	                                            '&ANEXO1=' . $anexoi .
-	                                            '&ANEXO2=' . $anexof ;
+		$resultado = $this->getValidarBeneficio();
 
-	    $response = Http::withToken(Session::get('token'))->get($url);
-	    
-	    $contenedor = [];
-	    $WSPredial = [];
-	    $WSArbitrios = [];
+		//dd($resultado);
 
-	    if ($response->successful()) {
-	        $data = $response->json();
+		if (is_array($resultado) && isset($resultado['codigo']) && isset($resultado['mensaje'])) {
+	        $codigo  = $resultado['codigo'];
+	        $mensaje = $resultado['mensaje'];
 
-	        if (!empty($data)) {
-	            $anioant  = '';
-	            $aniocont = -1;
-	            $counters = [
-	                'IMPPREDIAL' => 0,
-	                'ARBITRIOSMUNICIPALES' => 0,
-	                'COSTAS' => 0
-	            ];
+	        if ($codigo == 0) {				
+			    $annoi = 1999;
+			    $annof = date('Y');
+			    $tipodeuda = 0;
+			    $anexoi = 0;
+			    $anexof = 99;
+			    $condiciondeuda = 0;
 
-	            foreach($data as $row) {
-	                if ($row['ANNODEUDA'] !== $anioant) {
-	                    $anioant = $row['ANNODEUDA'];
-	                    $aniocont++;
-	                }
+			    $url = config('constants.PS_CTACTEBENEFICIO') . '?CODCONTRIBUYENTE=' . urlencode($code) .
+			                                            '&ANNODEUDAINI=' . $annoi .
+			                                            '&ANNODEUDAFIN=' . $annof .
+			                                            '&ANEXO1=' . $anexoi .
+			                                            '&ANEXO2=' . $anexof ;
 
-	                $contenedor[$aniocont]['anio'] = $row['ANNODEUDA'];
+			    $response = Http::withToken(Session::get('token'))->get($url);
+			    
+			    $contenedor = [];
+			    $WSPredial = [];
+			    $WSArbitrios = [];
 
-	                $descri = str_replace(" ", "", $row['DESCRIPCION']);
-	                $descri = str_replace(".", "", $descri);
+			    if ($response->successful()) {
+			        $data = $response->json();
 
-	                switch($row['CODCONPAGO']) {
-	                    case '1': // IMP. PREDIAL
-	                        $contenedor[$aniocont]['detallado']['IMPPREDIAL'][$counters['IMPPREDIAL']] = [
-	                        	'CODCONTRIBUYENTE' => $row['CODCONTRIBUYENTE'],
-	                        	'ANNODEUDA' => $row['ANNODEUDA'],
-	                        	'ANEXO' => $row['ANEXO'],
-	                        	'CODCONPAGO' => $row['CODCONPAGO'],
-	                        	'DESCRIPCION' => $row['DESCRIPCION'],
-	                        	'INSOLUTO' => number_format($row['INSOLUTO'], 2),
-	                        	'COSTO' => number_format($row['EMISION'], 2),
-	                        	'INTERES' => number_format($row['INTERES'], 2),
-	                        	'MORA' => number_format($row['MORA'], 2),
-	                        	'MONTO_AJUSTADO' => number_format($row['REAJUSTE'], 2),
-	                        	'COSTAS' => number_format($row['COSTAS'], 2),
-	                        	'TOTAL' => number_format($row['TOTAL'], 2),
-	                        	'BENEFICIO' => number_format($row['BENEFICIO'], 2),
-	                        	'LLAVE1' => $row['LLAVE1'],
-	                        	'LLAVE2' => $row['LLAVE2'],
-	                        	'LLAVE3' => $row['LLAVE3'],
-	                        	'PRED_DIRECCION' => $row['PRED_DIRECCION'],
-	                        	'PERIODO' => $row['PERIODODEUDA'],
-	                        	'ANNOTRAN' => $row['ANNOTRAN'],
-	                        	'ID' => $row['NUM_TRAN'],
-	                        ];
-	                        $counters['IMPPREDIAL']++;
-	                        break;
+			        if (!empty($data)) {
+			            $anioant  = '';
+			            $aniocont = -1;
+			            $counters = [
+			                'IMPPREDIAL' => 0,
+			                'ARBITRIOSMUNICIPALES' => 0,
+			                'COSTAS' => 0
+			            ];
 
-	                    case '2': // ARBITRIOS MUNICIPALES
-	                        $contenedor[$aniocont]['detallado']['ARBITRIOSMUNICIPALES'][$counters['ARBITRIOSMUNICIPALES']] = [
-	                            'CODCONTRIBUYENTE' => $row['CODCONTRIBUYENTE'],
-	                        	'ANNODEUDA' => $row['ANNODEUDA'],
-	                        	'ANEXO' => $row['ANEXO'],
-	                        	'CODCONPAGO' => $row['CODCONPAGO'],
-	                        	'DESCRIPCION' => $row['DESCRIPCION'],
-	                        	'INSOLUTO' => number_format($row['INSOLUTO'], 2),
-	                        	'COSTO' => number_format($row['EMISION'], 2),
-	                        	'INTERES' => number_format($row['INTERES'], 2),
-	                        	'MORA' => number_format($row['MORA'], 2),
-	                        	'MONTO_AJUSTADO' => number_format($row['REAJUSTE'], 2),
-	                        	'COSTAS' => number_format($row['COSTAS'], 2),
-	                        	'TOTAL' => number_format($row['TOTAL'], 2),
-	                        	'BENEFICIO' => number_format($row['BENEFICIO'], 2),
-	                        	'LLAVE1' => $row['LLAVE1'],
-	                        	'LLAVE2' => $row['LLAVE2'],
-	                        	'LLAVE3' => $row['LLAVE3'],
-	                        	'PRED_DIRECCION' => $row['PRED_DIRECCION'],
-	                        	'PERIODO' => $row['PERIODODEUDA'],
-	                        	'ANNOTRAN' => $row['ANNOTRAN'],
-	                        	'ID' => $row['NUM_TRAN'],
-	                        ];
-	                        $counters['ARBITRIOSMUNICIPALES']++;
-	                        break;
+			            foreach($data as $row) {
+			                if ($row['ANNODEUDA'] !== $anioant) {
+			                    $anioant = $row['ANNODEUDA'];
+			                    $aniocont++;
+			                }
 
-	                    case '22': // COSTAS
-	                        $contenedor[$aniocont]['detallado']['COSTAS'][$counters['COSTAS']] = [
-	                            'CODCONTRIBUYENTE' => $row['CODCONTRIBUYENTE'],
-	                        	'ANNODEUDA' => $row['ANNODEUDA'],
-	                        	'ANEXO' => $row['ANEXO'],
-	                        	'CODCONPAGO' => $row['CODCONPAGO'],
-	                        	'DESCRIPCION' => $row['DESCRIPCION'],
-	                        	'INSOLUTO' => number_format($row['INSOLUTO'], 2),
-	                        	'COSTO' => number_format($row['EMISION'], 2),
-	                        	'INTERES' => number_format($row['INTERES'], 2),
-	                        	'MORA' => number_format($row['MORA'], 2),
-	                        	'MONTO_AJUSTADO' => number_format($row['REAJUSTE'], 2),
-	                        	'COSTAS' => number_format($row['COSTAS'], 2),
-	                        	'TOTAL' => number_format($row['TOTAL'], 2),
-	                        	'BENEFICIO' => number_format($row['BENEFICIO'], 2),
-	                        	'LLAVE1' => $row['LLAVE1'],
-	                        	'LLAVE2' => $row['LLAVE2'],
-	                        	'LLAVE3' => $row['LLAVE3'],
-	                        	'PRED_DIRECCION' => $row['PRED_DIRECCION'],
-	                        	'PERIODO' => $row['PERIODODEUDA'],
-	                        	'ANNOTRAN' => $row['ANNOTRAN'],
-	                        	'ID' => $row['NUM_TRAN'],
-	                        ];
-	                        $counters['COSTAS']++;
-	                        break;
-	                }
-	            }
+			                $contenedor[$aniocont]['anio'] = $row['ANNODEUDA'];
 
-	            // Convertimos el array PHP a un objeto para manejarlo más fácilmente
-	            $result = json_decode(json_encode(['resultado' => $contenedor], JSON_FORCE_OBJECT));
-	            
-	            foreach ($result->resultado as $data) {
-	                $anio = $data->anio;
+			                $descri = str_replace(" ", "", $row['DESCRIPCION']);
+			                $descri = str_replace(".", "", $descri);
 
-	                if (isset($data->detallado->IMPPREDIAL)) {
-	                    foreach ($data->detallado->IMPPREDIAL as $predial) {
-	                        $predial->anio = $anio;
-	                        $WSPredial[] = $predial;
-	                    }
-	                }
+			                switch($row['CODCONPAGO']) {
+			                    case '1': // IMP. PREDIAL
+			                        $contenedor[$aniocont]['detallado']['IMPPREDIAL'][$counters['IMPPREDIAL']] = [
+			                        	'CODCONTRIBUYENTE' => $row['CODCONTRIBUYENTE'],
+			                        	'ANNODEUDA' => $row['ANNODEUDA'],
+			                        	'ANEXO' => $row['ANEXO'],
+			                        	'CODCONPAGO' => $row['CODCONPAGO'],
+			                        	'DESCRIPCION' => $row['DESCRIPCION'],
+			                        	'INSOLUTO' => number_format($row['INSOLUTO'], 2),
+			                        	'COSTO' => number_format($row['EMISION'], 2),
+			                        	'INTERES' => number_format($row['INTERES'], 2),
+			                        	'MORA' => number_format($row['MORA'], 2),
+			                        	'MONTO_AJUSTADO' => number_format($row['REAJUSTE'], 2),
+			                        	'COSTAS' => number_format($row['COSTAS'], 2),
+			                        	'TOTAL' => number_format($row['TOTAL'], 2),
+			                        	'BENEFICIO' => number_format($row['BENEFICIO'], 2),
+			                        	'LLAVE1' => $row['LLAVE1'],
+			                        	'LLAVE2' => $row['LLAVE2'],
+			                        	'LLAVE3' => $row['LLAVE3'],
+			                        	'PRED_DIRECCION' => $row['PRED_DIRECCION'],
+			                        	'PERIODO' => $row['PERIODODEUDA'],
+			                        	'ANNOTRAN' => $row['ANNOTRAN'],
+			                        	'ID' => $row['CODCONTRIBUYENTE'] . 
+			                        			$row['ANNOTRAN'] .
+			                        			str_pad('0', 4, '0', STR_PAD_LEFT) .
+			                        			str_pad('0', 5, '0', STR_PAD_LEFT) .
+			                        			str_pad(1, 5, '0', STR_PAD_LEFT) .
+			                        			$row['PERIODODEUDA'] .
+			                        			$row['CODCONPAGO']
+			                        ];
+			                        $counters['IMPPREDIAL']++;
+			                        break;
 
-	                if (isset($data->detallado->ARBITRIOSMUNICIPALES)) {
-	                    foreach ($data->detallado->ARBITRIOSMUNICIPALES as $arbitrios) {
-	                        $arbitrios->anio = $anio;
-	                        $WSArbitrios[] = $arbitrios;
-	                    }
-	                }
-	            }
-	        }
-	    }
+			                    case '2': // ARBITRIOS MUNICIPALES
+			                        $contenedor[$aniocont]['detallado']['ARBITRIOSMUNICIPALES'][$counters['ARBITRIOSMUNICIPALES']] = [
+			                            'CODCONTRIBUYENTE' => $row['CODCONTRIBUYENTE'],
+			                        	'ANNODEUDA' => $row['ANNODEUDA'],
+			                        	'ANEXO' => $row['ANEXO'],
+			                        	'CODCONPAGO' => $row['CODCONPAGO'],
+			                        	'DESCRIPCION' => $row['DESCRIPCION'],
+			                        	'INSOLUTO' => number_format($row['INSOLUTO'], 2),
+			                        	'COSTO' => number_format($row['EMISION'], 2),
+			                        	'INTERES' => number_format($row['INTERES'], 2),
+			                        	'MORA' => number_format($row['MORA'], 2),
+			                        	'MONTO_AJUSTADO' => number_format($row['REAJUSTE'], 2),
+			                        	'COSTAS' => number_format($row['COSTAS'], 2),
+			                        	'TOTAL' => number_format($row['TOTAL'], 2),
+			                        	'BENEFICIO' => number_format($row['BENEFICIO'], 2),
+			                        	'LLAVE1' => $row['LLAVE1'],
+			                        	'LLAVE2' => $row['LLAVE2'],
+			                        	'LLAVE3' => $row['LLAVE3'],
+			                        	'PRED_DIRECCION' => $row['PRED_DIRECCION'],
+			                        	'PERIODO' => $row['PERIODODEUDA'],
+			                        	'ANNOTRAN' => $row['ANNOTRAN'],
+			                        	'ID' => $row['CODCONTRIBUYENTE'] . 
+			                        			$row['ANNOTRAN'] .
+			                        			str_pad($row['LLAVE1'], 4, '0', STR_PAD_LEFT) .
+			                        			str_pad($row['LLAVE2'], 5, '0', STR_PAD_LEFT) .
+			                        			str_pad(1, 5, '0', STR_PAD_LEFT) .
+			                        			$row['PERIODODEUDA'] .
+			                        			$row['CODCONPAGO']
+			                        ];
+			                        $counters['ARBITRIOSMUNICIPALES']++;
+			                        break;
+			                }
+			            }
 
-	    // Convierte las respuestas JSON a colecciones
-		$WSPredial = collect($WSPredial);
-		$WSArbitrios = collect($WSArbitrios);
+			            // Convertimos el array PHP a un objeto para manejarlo más fácilmente
+			            $result = json_decode(json_encode(['resultado' => $contenedor], JSON_FORCE_OBJECT));
+			            
+			            foreach ($result->resultado as $data) {
+			                $anio = $data->anio;
 
-		// Combina ambas colecciones
-		$WSCombined = $WSPredial->merge($WSArbitrios);
+			                if (isset($data->detallado->IMPPREDIAL)) {
+			                    foreach ($data->detallado->IMPPREDIAL as $predial) {
+			                        $predial->anio = $anio;
+			                        $WSPredial[] = $predial;
+			                    }
+			                }
 
-		// Define el orden de los tributos
-		$order = ['Impuesto Predial', 'Arbitrios Municipales'];
+			                if (isset($data->detallado->ARBITRIOSMUNICIPALES)) {
+			                    foreach ($data->detallado->ARBITRIOSMUNICIPALES as $arbitrios) {
+			                        $arbitrios->anio = $anio;
+			                        $WSArbitrios[] = $arbitrios;
+			                    }
+			                }
+			            }
+			        }
+			    }
 
-		// Ordena primero por el año de deuda en orden descendente y luego por el tipo de tributo
-		$WSCombined = $WSCombined->sortBy([
-		    ['ANNODEUDA', 'desc'],  // Ordena por año en orden descendente
-		    function ($item) use ($order) {
-		        return array_search($item->DESCRIPCION, $order);
+			    // Convierte las respuestas JSON a colecciones
+				$WSPredial = collect($WSPredial);
+				$WSArbitrios = collect($WSArbitrios);
+
+				// Combina ambas colecciones
+				$WSCombined = $WSPredial->merge($WSArbitrios);
+
+				// Define el orden de los tributos
+				$order = ['Impuesto Predial', 'Arbitrios Municipales'];
+
+				// Ordena primero por el año de deuda en orden descendente y luego por el tipo de tributo
+				$WSCombined = $WSCombined->sortBy([
+				    ['ANNODEUDA', 'desc'],  // Ordena por año en orden descendente
+				    function ($item) use ($order) {
+				        return array_search($item->DESCRIPCION, $order);
+				    }
+				]);
+
+				// Si necesitas volver a un array
+				$WSCombined = $WSCombined->values()->all();
+
+				//dd($WSCombined);
+
+			    $monthlyData = '';
+			    return view('beneficio.index', compact('users', 'WSCombined', 'monthlyData'));
+	        }else {
+	        	//dd($codigo);
+	        	$monthlyData = '';
+	        	$WSCombined = [];
+	        	session()->flash('alert-danger', $mensaje);
+	        	return view('beneficio.index', compact('users', 'WSCombined', 'monthlyData'));
+		        //return redirect('/admin/beneficio')->with('alert-danger', $mensaje);
+		        //return redirect('/admin/beneficio')->with('alert-liquidacion','Debe seleccionar como mínimo un registro.');
 		    }
-		]);
-
-		// Si necesitas volver a un array
-		$WSCombined = $WSCombined->values()->all();
-
-	    $monthlyData = '';
-	    return view('beneficio.index', compact('users', 'WSCombined', 'monthlyData'));
+	    } else {
+	        return redirect('/admin/beneficio')->with('alert-danger', 'Volver a intentar a obtener respuesta del servicio.');
+	    }
 	}
 
-	public function generar_liquidacion_beneficio(Request $request))
+	public function generar_liquidacion_beneficio(Request $request)
 	{
-		$this->validate($request,[
-            'payment' => 'array',
-        ]);
+		try {
 
-        if ($request->input('arrayv')!="" ){
-            $payments = $request->input('arrayv');
+			$this->validate($request,[
+	            'arrayv' => 'required|json'
+	        ]);
 
-            $arradd = explode(",",$payments);
+	        if ($request->input('arrayv')!="[]") {
 
-            $arrshop = $arradd;
+	        	$from = $request->query('from');
 
-            $arrv = implode(',',$arrshop);
-            //Session::put('IP',$request->ip);
-            Session::put('code',Auth::user()->code);
+		    	$arrayv = $request->input('arrayv');
 
-            //codcadenarecibo = 14 caracteres
-            $data = ['codcadenarecibo'=>$arrv];
-            $result = '';
+		        // Decodificar el JSON a un array en PHP
+		        $registros = json_decode($arrayv, true);
+		        
+		        // Extraer solo los IDs de los registros seleccionados
+		        $ids = array_column($registros, 'id');
 
-            $response = Http::withToken(Session::get('token'))->post(config('constants.PI_LIQUIDACION'),$data);
+		        // Convertir el array de IDs a una cadena separada por comas
+		        $arrv = implode(',', $ids);
 
-            if ($response->successful()){
-                $data = $response->json();
-                //dd($response);
+		        Session::put('code',Auth::user()->code);
 
-                $data = ['NUMORDEN' => $data['numorden'] ];
-                $response = Http::withToken(Session::get('token'))->get(config('constants.PS_LIQUIDACION'),$data);
-                if ($response->successful()){
+		        //dd($arrv);
 
-                    $WSdata = $response->json();
-                    //dd($WSdata[0]);
+		        //codcadenarecibo = 31 caracteres
+		        $data = ['codcadenarecibo'=>$arrv];
+		        $result = '';
 
-                    $request->session()->put('liquidacion',$WSdata[0]['NUMORDEN']);
-                    Session::put('codliquidacion',$WSdata[0]['NUMORDEN']);
-                    //Session::put('descuento',$WSdata['NUMIMPORTE']);
-                    Session::put('menssage',$WSdata[0]['TXTTRIBUTO']);
-                    $request->session()->put('importe',$WSdata[0]['NUMIMPORTE']);
-                    //$WSdata = $WSdata['detalle'];
-                    $monthlyData = '';
-                    return view('shoppingcart.viewer', compact('monthlyData'));
-                }
-            }
-        }else{
-            return redirect('/admin/deuda')->with('alert-liquidacion','Debe seleccionar como mínimo un registro.');
-        }
+		        $response = Http::withToken(Session::get('token'))->post(config('constants.PI_LIQUIDACIONBENEF'),$data);
+
+		        if ($response->successful()){
+		            $data = $response->json();
+
+		            $data = ['NUMORDEN' => $data['numorden'] ];
+		            $response = Http::withToken(Session::get('token'))->get(config('constants.PS_LIQUIDACION'),$data);
+		            if ($response->successful()){
+		                $WSdata = $response->json();
+
+		                $request->session()->put('liquidacion',$WSdata[0]['NUMORDEN']);
+		                Session::put('codliquidacion',$WSdata[0]['NUMORDEN']);
+		                Session::put('menssage',$WSdata[0]['TXTTRIBUTO']);
+		                $request->session()->put('importe',$WSdata[0]['NUMIMPORTE']);
+		                $monthlyData = '';
+		                return view('shoppingcart.viewer', compact('monthlyData','from'));
+		            }else {
+		            	return redirect('/admin/beneficio')->with('alert-liquidacion','Volver a intentar mostrar los datos de la liquidación');
+		            }
+		        }else {
+		        	return redirect('/admin/beneficio')->with('alert-liquidacion','Volver a generar la liquidación');
+		        }
+		    } else {
+		        return redirect('/admin/beneficio')->with('alert-liquidacion','Debe seleccionar como mínimo un registro.');
+		    }
+		} catch (\Exception $e) {
+	        return redirect('/admin/beneficio')->with('alert-liquidacion', 'Ocurrió un error: ' . $e->getMessage());
+	    }
+	}
+
+	private function getValidarBeneficio()
+	{
+		$code = Auth::user()->code;
+		$url = config('constants.PS_VERIFICARBENEFICIO') . '?CODCONTRIBUYENTE=' . urlencode($code);
+		$response = Http::withToken(Session::get('token'))->get($url);
+		if ($response->successful()){
+			return $response->json();
+		}else {
+			return [
+                'codigo' => -1,
+                'mensaje' => 'Error en la solicitud HTTP: ' . $response->status()
+            ];
+		}
 	}
 }

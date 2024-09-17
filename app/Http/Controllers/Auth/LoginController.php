@@ -63,6 +63,8 @@ class LoginController extends Controller
             $data = ['CODCONTRIBUYENTE'=>$user, 'TXTPASSWORD'=>$passwd];
             $response = Http::post(config('constants.PS_LOGIN'),$data);
 
+            //dd($response->json());
+
             if($response->successful()){
                 $jsonToken = $response->json();
                 $token = $jsonToken['token'];
@@ -73,6 +75,8 @@ class LoginController extends Controller
                 $url = config('constants.PS_CONTRIBUYENTE') . '?codcontribuyente=' . urlencode($user);
                 $response = Http::withToken(Session::get('token'))->get($url);
 
+                //dd($response->json());
+
                 if($response->successful()){
                     $data = $response->json();
 
@@ -82,7 +86,7 @@ class LoginController extends Controller
                             'name'    => $data[0]['TXTCONTRIBUYENTE'],
                             'address' => $data[0]['TXTDOMICILIO'] ? $data[0]['TXTDOMICILIO'] : '',
                             'days'    => 1,
-                            'email'   => $data[0]['TXTEMAIL'] ? $data[0]['TXTEMAIL'] : '',
+                            'email'   => $data[0]['TXTEMAIL'] ? $data[0]['TXTEMAIL'] : 'test@gmail.com',
                             'typedoc' => $data[0]['TXTTIPODOCIDENTIDAD'] ? $data[0]['TXTTIPODOCIDENTIDAD']: '',
                             'numdoc'  => $data[0]['TXTDOCIDENTIDAD'] ? $data[0]['TXTDOCIDENTIDAD']: ''
                         ]);

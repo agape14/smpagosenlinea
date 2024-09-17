@@ -16,7 +16,6 @@
 
         <form method="post" action="{{ route('admin.confirm.deleteitem') }}" onsubmit="setarray()">
             {{ csrf_field() }}
-            
 
             <div class="card">
                 <div class="card-header">

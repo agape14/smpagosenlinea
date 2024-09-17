@@ -188,7 +188,48 @@
             margin: 0 5px; /* Espacio adicional alrededor de los botones */
         }
 
+        table.dataTable thead th {
+            position: sticky;
+            top: 0;
+            background: #f0f0f0;
+        }
+
     </style>
+
+    <script src="{{ asset('extensions/jquery/jquery.min.js') }}"></script>
+    <script src="{{ asset('js/pages/datatables.min.js') }}"></script>
+    <script src="{{ asset('js/pages/datatables.js') }}"></script>
+
+
+    <script type="text/javascript">
+        $(function () {
+
+            var dataTable = $('#datadatable').DataTable({
+                "scrollY": 500, // Altura del contenedor con scroll
+                "scrollCollapse": true,
+                "bLengthChange": false,
+                "responsive": true,
+                "info": false,
+                "paging": false,
+                "ordering": false,
+                "language": {
+                    "emptyTable": "No hay datos disponibles en la tabla"
+                },
+                /*"columnDefs": [
+                    {
+                        "searchable": true,
+                        "targets": [8],
+                        "visible": false
+                    }
+                ],*/
+            });
+
+            $('.dataTables_filter').hide()
+
+            $(".checkboxclick:checked").each(function(){});
+
+        })
+    </script>
 
     <script type="text/javascript">
         document.querySelectorAll('.openPopup').forEach(button => {

@@ -7,7 +7,13 @@
     <section id="content-types">
         <div class="card-header mt-2 mb-2">
             <div class="buttons">
-                <a href="{{ route('admin.deuda.index') }}" class="btn btn-danger"><i class="cart-plus"></i> Regresar</a>
+
+                @if ($from === 'deuda')
+                    <a href="{{ route('admin.deuda.index') }}" class="btn btn-danger"><i class="cart-plus"></i>Regresar a Deuda</a>
+                @elseif ($from === 'beneficio')
+                    <a href="{{ route('admin.beneficio.index') }}" class="btn btn-danger"><i class="cart-plus"></i>Regresar a Beneficio</a>
+                @endif
+
             </div>
         </div>
 
